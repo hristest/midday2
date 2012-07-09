@@ -174,7 +174,17 @@
 					scrollItem.add(titleLabel);
 					scrollItem.add(descLabel);
 					
-					//Ti.API.info(pagesView[currentPage].children.length  + " ---- " + currentPage);
+					
+					// Details View Load
+					
+					
+					
+					
+					
+					// ----------------------------------
+					
+					
+					
 					pagesView[currentPage].add(scrollItem);
 					
 					

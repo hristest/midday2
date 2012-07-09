@@ -11,11 +11,12 @@
 		// Main Content
 		var leftView = Ti.UI.createView({
 			width:"92%",
-			backgroundColor: '#FFF'
+			backgroundColor: '#FFF',
+			layout:'horizontal'
 		});
 		
 		var mainContentView = md.ui.createMainContentView('home');
-		
+		mainContentView.linkid = 0;
 		leftView.add(mainContentView);
 		
 		

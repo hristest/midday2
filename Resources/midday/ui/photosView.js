@@ -76,7 +76,7 @@
 
 				
 				var numItems = 3;
-				Ti.API.info(numItems * numLayers);
+				
 				for(var i = 0; i < numItems * numLayers; i++){
 					var currentLayer = Math.floor(i / numItems) + 1;
 

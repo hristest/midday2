@@ -6,17 +6,6 @@ var md = {};
 	
 	md.app = {};
 	
-	md.app.links = {
-		'breakingNews': 'http://174.132.170.219/~ipadmida/json/breakingnews.json',
-		'topStories': 'http://174.132.170.219/~ipadmida/json/top_stories.json',
-		'photos': 'http://174.132.170.219/~ipadmida/json/photos.json',
-		'cartoons':'http://174.132.170.219/~ipadmida/json/cartoons.json',
-		'otherTopStories': 'http://174.132.170.219/~ipadmida/json/other_top_stories.json',
-		'videos':'http://174.132.170.219/~ipadmida/json/videos.json',
-		'mate':'http://174.132.170.219/~ipadmida/json/mate.json',
-		'columnists':'http://174.132.170.219/~ipadmida/json/columnists.json'
-	};
-	
 	md.app.baseUrl = 'http://174.132.170.219/~ipadmida/';
 	
 	md.app.links = {
@@ -49,8 +38,28 @@ var md = {};
 		'sports': {
 			'topStories': md.app.baseUrl + 'json/sports_top_stories.json',
 			'otherTopStories': md.app.baseUrl + 'json/sports_other_top_stories.json',
+		},
+		'photos': {
+			
+		},
+		'videos': {
+			
+		},
+		'columnists': {
+			
 		}
 	};
+	
+	md.app.links.mapping = [
+			{ name:'photos', title:'Photos' },
+			{ name:'videos', title:'Videos'},
+			{ name:'news', title:'News'},
+			{ name:'entertainment', title:'entertainment'},
+			{ name:'sports', title:'Sports'},
+			{ name:'relationships', title:'Sex & Relationships'},
+			{ name:'lifestyle', title:'lifestyle'},
+			{ name:'columnists', title:'columnists'}
+		];
 	
 	
 	
