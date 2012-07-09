@@ -9,32 +9,29 @@
 		});
 		
 		// Main Content
-		var mainContentView = Ti.UI.createView({
+		var leftView = Ti.UI.createView({
 			width:"92%",
-			backgroundColor: '#FFF',
-			layout:'vertical'
+			backgroundColor: '#FFF'
 		});
 		
-		// Assembling MainContentView
-		var breakingNewsView = md.ui.createBreakingNewsView();
-		var topStoriesView = md.ui.createTopStoriesView();
-		var mainSectionView = md.ui.createMainSectionView();
-		var columnistsView = md.ui.createColumnistsView();
+		var mainContentView = md.ui.createMainContentView('home');
 		
-		mainContentView.add(breakingNewsView);
-		mainContentView.add(topStoriesView);
-		mainContentView.add(mainSectionView);
-		mainContentView.add(columnistsView);
+		leftView.add(mainContentView);
 		
 		
-	
-	
+		
 		// SideBar
 		var sideBarView = md.ui.createSideBarView();
-		
-		
-		win.add(mainContentView);
+
+		win.add(leftView);
 		win.add(sideBarView);
+		
+		win.orientationModes = [
+		    Titanium.UI.PORTRAIT,
+		    Titanium.UI.UPSIDE_PORTRAIT,
+		    Titanium.UI.LANDSCAPE_LEFT,
+		    Titanium.UI.LANDSCAPE_RIGHT,
+		]; 
 		
 		return win;
 	};

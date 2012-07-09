@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+	<string name="appName">Tweetanium</string>
+	<string name="topStories">Top Stories</string>
+	<string name="photos">Photos</string>
+	<string name="cartoons">Cartoons</string>
+	<string name="otherTopStories">Other Top Stories</string>
+	<string name="videos">Videos</string>
+	<string name="mate">Mate</string>
+	<string name="columnists">Columnists</string>
+</resources>

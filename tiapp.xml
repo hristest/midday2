@@ -14,7 +14,7 @@
         <target device="blackberry">false</target>
     </deployment-targets>
     <sdk-version>2.1.0.GA</sdk-version>
-    <id>com.fortune4technologies.midday</id>
+    <id>com.rajatappledev.midday2</id>
     <name>midday2</name>
     <version>1.0</version>
     <publisher>fortune4tech</publisher>

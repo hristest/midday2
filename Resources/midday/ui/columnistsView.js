@@ -1,55 +1,14 @@
 
 (function(){
 	
-	md.ui.createColumnistsView = function(){
+	md.ui.createColumnistsView = function(section){
 		
-		var wrap = Ti.UI.createView({
-			left:10,
-			right:10,
-			layout:'vertical',
-			height:Ti.UI.FILL
-		});
 		
-		// Title area
-		//-------------------------------------------
+		var wrap = md.ui.components.createWrapView({ layout:'vertical'});
+		
 		// Title
-		var titlearea = Ti.UI.createView({
-			layout:'horizontal',
-			top:0,
-			height:20
-		});
-		
-		var tsTitle = Ti.UI.createLabel({
-			text:'Columnists',
-			textAlign:'center',
-			color:'#ff7500',
-			font:{fontSize:12},
-			width:"20%",
-			left:3,
-			top:0
-		});
-		
-		var seperatorL = Ti.UI.createView({
-			height:4,
-			width:"40%",
-			backgroundImage:"/images/seperator.png",
-			top:5
-		});
-		
-		var seperatorR = Ti.UI.createView({
-			height:4,
-			width:"30%",
-			backgroundImage:"/images/seperator.png",
-			left:3,
-			right:0,
-			top:5
-		});
-		
-		titlearea.add(seperatorL);
-		titlearea.add(tsTitle);
-		titlearea.add(seperatorR);
-		
-		wrap.add(titlearea);
+		var titleView = md.ui.components.createTitleView("columnists");
+		wrap.add(titleView);
 		
 		
 		// Columnists
@@ -61,65 +20,58 @@
 		
 		var columnRowsContainer = null;
 		
-		function reloadColumnists(ori){
+		var data = [];
+		
+		wrap.updateView = function(ori){
 			
 			if(columnistsWrap.children.length == 1)
 				columnistsWrap.remove(columnistsWrap.children[0]);
-			
-			var columnRowsContainer = Ti.UI.createView({
-				layout:'horizontal',
-				top:0,
-				width:Ti.UI.FILL
-			});
+
+			var columnRowsContainer = md.ui.components.createWrapView({ layout:'horizontal' });
 			
 			var numColumns = (ori == 'portrait') ? 4 : 6;
 			
+			var count = 0;
+			for(var i in data) count++;
 			
-			var url = md.app.links.columnists;
+			numColumns = (count < numColumns) ? count : numColumns;
+			
+			for(var i = 0; i < numColumns; i++){
+				var title = data[i].title;
+				var summary = data[i].summary;
+				
+				var column = Ti.UI.createView({
+					left:"2%",
+					top:0,
+					layout:'veritcal',
+					width:(ori == 'portrait') ? "22%" : "14%"
+				});
+
+				var columnTitle = Ti.UI.createLabel(md.combine($$.headerText, { text:title, height:"25%" }));
+				
+				var columnSummary = Ti.UI.createLabel(md.combine($$.contentText, { top:30, height:"50%", text:summary }));
+				
+				column.add(columnTitle);
+				column.add(columnSummary);
+				
+				columnRowsContainer.add(column);
+			}
+			columnistsWrap.add(columnRowsContainer);
+			
+			
+		};
+		
+		wrap.loadContent = function(ori, section){
+			
+			if(!section || !md.app.links[section].columnists) section = 'home';
+			
+			var url = md.app.links[section].columnists;
 			var tsLoader = Ti.Network.createHTTPClient();
 			tsLoader.onload = function(e){
 				var response = eval('(' + this.responseText + ')');
+				data = response;
 				
-				var count = 0;
-				for(var i in response) count++;
-				
-				numColumns = (count < numColumns) ? count : numColumns;
-				
-				for(var i = 0; i < numColumns; i++){
-					var title = response[i].title;
-					var summary = response[i].summary;
-					
-					var column = Ti.UI.createView({
-						left:"2%",
-						top:0,
-						layout:'veritcal',
-						width:(ori == 'portrait') ? "22%" : "16%"
-					});
-					
-					var columnTitle = Ti.UI.createLabel({
-						text:title,
-						font: {'fontSize':$$.platformWidth * 0.02},
-						color:'#015291',
-						top:2,
-						left:0,
-						height:"25%"
-					});
-					
-					var columnSummary = Ti.UI.createLabel({
-						text:summary,
-						font: {'fontSize':$$.platformWidth * 0.015},
-						color:'#111',
-						top:30,
-						left:0,
-						height:"50%"
-					});
-					
-					column.add(columnTitle);
-					column.add(columnSummary);
-					
-					columnRowsContainer.add(column);
-				}
-				columnistsWrap.add(columnRowsContainer);
+				wrap.updateView(ori);
 			};
 			
 			tsLoader.open('GET', url);
@@ -127,14 +79,26 @@
 			
 		}
 		
+		var ori = md.getOri();
+		wrap.loadContent(ori, section);
+		
+		var OldOrientation = -1;
+		
 		Ti.Gesture.addEventListener('orientationchange', function(e){
-			var ori = getOrientation(Ti.Gesture.orientation);
+			var ori = md.getOrientation(Ti.Gesture.orientation);
+			
+			if(e.orientation < 1 || e.orientation > 4) return;
+			
+			if(OldOrientation==e.orientation) return;
+ 
+    		// Set Old to new
+    		OldOrientation=e.orientation;
 			
 			if(ori == 'landscape'){
-				reloadColumnists(ori);
+				wrap.updateView(ori);
 				
 			} else if(ori == 'portrait'){
-				reloadColumnists(ori);
+				wrap.updateView(ori);
 			}
 			
 			

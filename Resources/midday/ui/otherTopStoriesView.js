@@ -1,7 +1,7 @@
 
 (function(){
 	
-	md.ui.createOtherTopStoriesView = function(){
+	md.ui.createOtherTopStoriesView = function(section){
 		
 		var wrap = Ti.UI.createView({
 			top:0,
@@ -11,54 +11,24 @@
 			layout:'vertical'
 		});
 		
-		// Title
-		wrapWidth = $$.platformWidth * 0.3;
-		var titlearea = Ti.UI.createView({
-			layout:'horizontal',
-			top:0,
-			height:20
-		});
+		// TitleView
+		var titleView = md.ui.components.createTitleView("Other Top Stories");
 		
-		var tsTitle = Ti.UI.createLabel({
-			text:'Other Top Stories',
-			textAlign:'center',
-			color:'#ff7500',
-			font:{fontSize:12},
-			width:"40%",
-			left:10,
-			top:0
-		});
+		wrap.add(titleView);
 		
-		var seperatorL = Ti.UI.createView({
-			height:4,
-			width:"20%",
-			backgroundImage:"/images/seperator.png",
-			top:5
-		});
-		
-		var seperatorR = Ti.UI.createView({
-			height:4,
-			width:"20%",
-			backgroundImage:"/images/seperator.png",
-			left:10,
-			right:0,
-			top:5
-		});
-		
-		titlearea.add(seperatorL);
-		titlearea.add(tsTitle);
-		titlearea.add(seperatorR);
-		
-		wrap.add(titlearea);
-		
-		
-		
-		
+
 		var storiesViewWrap = null;
+		var storiesData = [];
 		
-		function reload(ori){
+		wrap.updateView = function(ori){
 			
+			wrap.width = (ori == 'landscape') ? "60%" : "45%"; 
+			if(storiesViewWrap){
+				wrap.remove(storiesViewWrap);
+				storiesViewWrap = null;
+			}
 			
+			var totalItems = 4;
 			// Stories Table 
 			storiesViewWrap = Ti.UI.createView({
 				top:2,
@@ -90,21 +60,13 @@
 				storiesViewWrap.add(subView2);
 			}
 			
-			
-			var url = md.app.links.otherTopStories;
-			var tsLoader = Ti.Network.createHTTPClient();
-			tsLoader.onload = function(e){
-				var response = eval('(' + this.responseText + ')');
+			for(var i in storiesData){
 				
-				var totalItems = 4;
+					var img = storiesData[i].image;
+					var title = storiesData[i].title;
+					var text = storiesData[i].text;
+					var link = storiesData[i].link;
 				
-				var tablerows = [];
-				for(var i = 0; i < totalItems; i++){
-					var img = response.items[i].image;
-					var title = response.items[i].title;
-					var text = response.items[i].text;
-					var link = response.items[i].link;
-					
 					var tablerow = Ti.UI.createView({
 						top:5,
 						left:5,
@@ -146,7 +108,7 @@
 						left:10,
 						width:(ori == 'portrait') ? 180 : 150
 					});
-				
+					
 					contentWrap.add(rowTitle);
 					contentWrap.add(rowDesc);
 					
@@ -154,9 +116,33 @@
 					tablerow.add(contentWrap);
 			
 					var currentSubView = (ori == 'portrait') ? 0 : Math.floor(i / (totalItems / 2));
-					Ti.API.info("CurrentSubView: " + currentSubView);
+					
 					storiesViewWrap.children[currentSubView].add(tablerow);
+			
+			}
+			
+			wrap.add(storiesViewWrap);
+			
+		}
+		
+		wrap.loadContent = function(ori, section){
+			
+			if(!section || !md.app.links[section].otherTopStories) section = 'home';
+			
+			var url = md.app.links[section].otherTopStories;
+			var tsLoader = Ti.Network.createHTTPClient();
+			tsLoader.onload = function(e){
+				var response = eval('(' + this.responseText + ')');
+				
+				var totalItems = 4;
+				
+				storiesData = [];
+				for(var i = 0; i < totalItems; i++){
+					var article = response.items[i];
+					storiesData.push(article);
 				}
+				
+				wrap.updateView(ori);
 				
 				
 			}
@@ -164,26 +150,30 @@
 			tsLoader.open('GET', url);
 			tsLoader.send();
 			
-			wrap.add(storiesViewWrap);
+			
 		
 		}
 		
-
+		var ori = md.getOri();
+		wrap.loadContent(ori, section);
+		
+		var OldOrientation = -1;
 		
 		Ti.Gesture.addEventListener('orientationchange', function(e){
-			var ori = getOrientation(Ti.Gesture.orientation);
+			var ori = md.getOrientation(Ti.Gesture.orientation);
+			
+			if(e.orientation < 1 || e.orientation > 4) return;
+			
+			if(OldOrientation==e.orientation) return;
+ 
+    		// Set Old to new
+    		OldOrientation=e.orientation;
 			
 			if(ori == 'landscape'){
-				wrap.width = "60%";
-				if(storiesViewWrap != null)
-					wrap.remove(storiesViewWrap);
-				reload(ori);
+				wrap.updateView(ori);
 				
 			} else if(ori == 'portrait'){
-				wrap.width = "45%";
-				if(storiesViewWrap != null)
-					wrap.remove(storiesViewWrap);
-				reload(ori);
+				wrap.updateView(ori);
 			}
 			
 			

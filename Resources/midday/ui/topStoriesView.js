@@ -2,7 +2,7 @@
 
 (function(){
 	
-	md.ui.createTopStoriesView = function(){
+	md.ui.createTopStoriesView = function(section){
 		
 		var tsView = Ti.UI.createView({
 			height:"30%",
@@ -70,23 +70,24 @@
 		tsView.add(titlearea);
 		//------------------------------------------------
 		
-		
-		
+
 		// SlideShow
 		
 		var sldShowWrap = Ti.UI.createView({
 			top:0,
 			left:0,
-			height:"80%"
+			height:"80%",
+			width:Ti.UI.Fill
 		});
 		
 		var sldShow = Ti.UI.createScrollableView({
 			layout:'horizontal',
 			top:0,
-			left:0
+			left:0,
+			height:Ti.UI.FILL
 		});
 		
-		sldShowWrap.add(sldShow);
+		
 		
 		sldShow.addEventListener('scroll', function(e){	
 			for(var ind in ssIndicator.children){
@@ -98,31 +99,19 @@
 		tsView.add(sldShowWrap);
 		
 		
-		function loadTopStories(numItems){
+		var topStories;
+		
+		tsView.updateView = function(ori){
 			
-			sldShow.views = [];
-			
-			var url = md.app.links.topStories;
-			var tsLoader = Ti.Network.createHTTPClient();
-			tsLoader.onload = function(e){
-				var response = eval('(' + this.responseText + ')');
-				var topStories = [];
-				var item = response.items;
-				var totalItems = 0;
-				for(var i in item){
-					topStories.push(item[i]);
-					totalItems++;
-				}
-				
-				var itemsPerPage = numItems;
 	
+				var itemsPerPage = (ori == "portrait") ? 3 : 4;
+
 				var numStories = topStories.length;
 				//var pages = numStories / itemsPerPage;
 				//if((numStories % itemsPerPage) != 0) pages++;
 				//pages = Math.floor(pages);
 				pages = 3;
 				var pagesView = [];
-				
 				for(var p = 0; p < pages; p++){
 					var pageView = Ti.UI.createView({
 						layout:'horizontal',
@@ -134,9 +123,13 @@
 					
 					pagesView.push(pageView);
 				}
-	
-				var sldshowItems = ((pages * numItems) < totalItems) ? pages * numItems : totalItems;
-				Ti.API.info(totalItems);
+		
+				
+				var totalItems = topStories.length;
+				
+				var sldshowItems = ((pages * itemsPerPage) < totalItems) ? pages * itemsPerPage : totalItems;
+				
+				
 				var currentPage = 0;
 				for(var s = 0; s < sldshowItems; s++){
 					
@@ -144,15 +137,15 @@
 						img = topStories[s].image,
 						desc = topStories[s].text,
 						link = topStories[s].link;
-						
+			
 					currentPage = Math.floor(s / itemsPerPage);
+					
 					var scrollItem = Ti.UI.createView({
 						left: (pagesView[currentPage].children.length == 0) ? 1 : 30,
 						top:0,
 						height:"100%",
 						layout:'vertical',
-						background:'#ddd',
-						width:(numItems == 3) ? "30%" : "22%"
+						width:(itemsPerPage == 3) ? "30%" : "22%"
 					});
 					
 					var imgView = Ti.UI.createImageView({
@@ -181,40 +174,65 @@
 					scrollItem.add(titleLabel);
 					scrollItem.add(descLabel);
 					
-					
-					
-					
 					//Ti.API.info(pagesView[currentPage].children.length  + " ---- " + currentPage);
 					pagesView[currentPage].add(scrollItem);
-					//Ti.API.info(pagesView[currentPage].children.length);
+					
 					
 				}
 				
-				sldShow.views = pagesView
+				sldShow.views = pagesView;
+
+				
+		}
+		
+		
+		tsView.loadContent = function(ori, section){
+			
+			if(!section || !md.app.links[section].topStories) section = 'home';
+			
+			var url = md.app.links[section].topStories;
+			var tsLoader = Ti.Network.createHTTPClient();
+			tsLoader.onload = function(e){
+				
+				var response = eval('(' + this.responseText + ')');
+				topStories = [];
+				for(var i in response.items){
+					topStories.push(response.items[i]);
+				}
+				
+				tsView.updateView(ori);
 				
 				
 			};
 			
 			tsLoader.open('GET', url);
 			tsLoader.send();
-			
-			
-		
+
 		}
+
 		
-		//loadTopStories(3);
+		var ori = md.getOri();
+		tsView.loadContent(ori, section);
 		
-		
+		// Orientation Change
+		var OldOrientation = -1;
 		Ti.Gesture.addEventListener('orientationchange', function(e){
-			var ori = getOrientation(Ti.Gesture.orientation);
+			var ori = md.getOrientation(Ti.Gesture.orientation);
+			
+			if(e.orientation < 1 || e.orientation > 4) return;
+			
+			if(OldOrientation==e.orientation) return;
+ 
+    		// Set Old to new
+    		OldOrientation=e.orientation;
 			
 			if(ori == 'landscape'){
 				tsView.height = "40%";
-				loadTopStories(4);
+				tsView.loadContent(ori, section);
 				
 			} else if(ori == 'portrait'){
 				tsView.height = "30%";
-				loadTopStories(3);
+				tsView.loadContent(ori, section);
 			}
 			
 			

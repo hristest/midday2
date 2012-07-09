@@ -7,7 +7,7 @@
 			top:0,
 			left:0,
 			width:"20%",
-			height:Titanium.UI.FILL,
+			height:Ti.UI.FILL,
 			layout:"vertical"
 		});
 		
